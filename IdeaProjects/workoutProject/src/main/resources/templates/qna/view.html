@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/basic.html}">
+
+<head>
+    <title>QnA 상세</title>
+    <th:block layout:fragment="link">
+        <link rel="stylesheet" th:href="@{/assets/css/qna-view.css}" />
+    </th:block>
+</head>
+
+<div layout:fragment="content" id="main-wrapper">
+    <div class="wrapper style2">
+        <div class="inner">
+            <div class="container">
+                <!-- 게시글 컨테이너 -->
+                <div class="post-container">
+                    <div class="post-header">
+                        <h1 class="post-title" id="postTitle"></h1>
+                        <div class="post-info">
+                            <div>
+                                작성자: <span id="postWriter"></span> |
+                                작성일: <span id="postDate"></span>
+                            </div>
+                            <span id="postStatus" class="status-badge"></span>
+                        </div>
+                    </div>
+
+                    <div class="post-content" id="postContent"></div>
+                    <div id="postImages" class="post-images"></div>
+
+                    <div id="errorMessage" class="error-message"></div>
+
+                    <div class="post-footer"
+                         style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <button onclick="location.href='/qna/list'" class="button secondary-button">목록</button>
+                        </div>
+
+                        <div id="postActions"
+                             th:data-is-admin="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}"
+                             th:data-writer="${#authentication.name}"
+                             th:data-post-writer="${qna.writer}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 답변 섹션 -->
+                <div class="reply-section">
+                    <h3 class="reply-section-title">
+                        <span>답변 목록</span>
+                        <button id="viewRepliesButton" class="button toggle-button">
+                            <span class="toggle-text">보기</span>
+                        </button>
+                    </h3>
+
+                    <div id="replyContainer" style="display: none;">
+                        <div id="completedMessageContainer"></div>
+                        <div id="replyList" class="reply-list"></div>
+
+                        <div id="loadMoreContainer" class="load-more-container">
+                            <button id="loadMoreButton" class="load-more-button" style="display: none;">더보기</button>
+                        </div>
+
+                        <div id="replyFormSection" class="reply-form"
+                             th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')') || (#authentication.isAuthenticated() && #authentication.name == qna.writer)}">
+                            <label for="replyText"></label>
+                            <textarea id="replyText" class="reply-textarea" placeholder="답변을 입력해주세요..."></textarea>
+                            <div>
+                                <button class="button primary-button"
+                                        th:text="${#authorization.expression('hasRole(''ROLE_ADMIN'')') ? '답변 작성' : '질문 작성'}">
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="imageModal" class="modal">
+        <span class="modal-close">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+</div>
+
+<th:block layout:fragment="script">
+    <script type="module" th:src="@{/assets/js/qna/view.js}"></script>
+</th:block>
+
+</html>

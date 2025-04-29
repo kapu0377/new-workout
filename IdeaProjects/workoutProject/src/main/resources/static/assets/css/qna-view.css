@@ -1,0 +1,248 @@
+@import url('base.css');
+@import url('variables.css');
+@import url('utilities.css');
+@import url('components.css');
+
+/* QnA view specific styles */
+.post-container {
+    background: var(--text-white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: var(--spacing-xl);
+    margin-top: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+}
+
+.post-header {
+    margin-bottom: var(--spacing-lg);
+}
+
+.post-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.post-info {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--primary);
+    color: var(--text-white);
+    font-size: 0.8rem;
+}
+
+.post-content {
+    line-height: 1.6;
+    margin: var(--spacing-lg) 0;
+}
+
+.post-images {
+    display: block;
+    margin: var(--spacing-md) auto;
+}
+
+.post-images img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: var(--spacing-md) auto;
+    border-radius: var(--radius-sm);
+}
+
+.button {
+    padding: var(--spacing-xs) var(--spacing-md);
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: var(--transition-normal);
+}
+
+.primary-button {
+    background-color: var(--primary);
+    color: var(--text-white);
+}
+
+.secondary-button {
+    background-color: var(--bg-color);
+    color: var(--text-dark);
+}
+
+.secondary-button2 {
+    background-color: var(--bg-color);
+    color: var(--text-dark);
+}
+
+.button:hover {
+    transform: translateY(-1px);
+}
+
+.reply-section {
+    margin-top: var(--spacing-xl);
+}
+
+.reply-section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: var(--spacing-md);
+}
+
+.toggle-button {
+    background-color: var(--primary);
+    color: var(--text-white);
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: 0.9rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: var(--transition-normal);
+}
+
+.toggle-button:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.view-replies-container {
+    margin-bottom: var(--spacing-md);
+}
+
+.reply-list {
+    margin-top: var(--spacing-md);
+}
+
+.reply-item {
+    background: var(--text-white);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.reply-header {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.reply-writer-container {
+    display: flex;
+    align-items: center;
+}
+
+.reply-writer {
+    font-weight: 600;
+}
+
+.reply-text {
+    margin: var(--spacing-sm) 0;
+}
+
+.reply-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.reply-date {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.reply-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 0.75rem;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    margin-bottom: 0.5rem;
+}
+
+.load-more-button {
+    text-align: center;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border: none;
+    background-color: var(--primary);
+    color: var(--text-white);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.error-message {
+    color: #dc2626;
+    margin-bottom: 1rem;
+}
+
+.modal-close {
+    position: absolute;
+    top: 16px;
+    right: 24px;
+    font-size: 2rem;
+    color: #333;
+    cursor: pointer;
+    z-index: 10;
+    background: rgba(255,255,255,0.8);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: background 0.2s;
+}
+.modal-close:hover {
+    background: #f3f4f6;
+}
+
+#imageModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.5);
+    z-index: 2000;
+}
+#imageModal.show {
+    display: flex;
+}
+#imageModal .modal-content {
+    max-width: 90vw;
+    max-height: 80vh;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+}
+
+/* 관리자 뱃지 스타일 */
+.admin-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: #1e40af; /* 진한 파란색 */
+    color: white;
+    border-radius: 3px;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}

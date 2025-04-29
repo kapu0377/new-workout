@@ -1,0 +1,77 @@
+/* 푸터 스타일 */
+#footer-wrapper {
+    padding: 1.5rem 0 0.5rem 0;
+    margin-bottom: 0;
+    position: relative;
+    background-color: #f1f3f5;
+    color: var(--text-dark);
+    border-top: 1px solid #dee2e6;
+}
+
+#footer {
+    margin-bottom: 0;
+}
+
+#footer section {
+    margin-bottom: 0.5rem;
+}
+
+#footer h2 {
+    margin-bottom: 0.5rem;
+    color: var(--text-dark);
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.contact dt {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+}
+
+.contact dd {
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: var(--text-medium);
+}
+
+.contact a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: var(--transition-normal);
+}
+
+.contact a:hover {
+    color: var(--primary-hover);
+}
+
+#copyright {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding-top: 0.5rem;
+    margin-top: 0.5rem;
+    text-align: center;
+}
+
+.copyright-text {
+    margin: 0;
+    padding: 0;
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+@media (max-width: 768px) {
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    #footer-wrapper {
+        padding: 1rem 0 0.5rem 0;
+    }
+} 

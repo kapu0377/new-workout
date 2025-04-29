@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/basic.html}">
+<head>
+    <th:block layout:fragment="link">
+        <title>방 생성</title>
+        <link rel="stylesheet" th:href="@{/assets/css/base.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/layout.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/components.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/utilities.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/variables.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/videoRoom.css}">
+    </th:block>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="wrapper style2">
+        <div class="inner">
+            <div class="container" style="padding: 2em 0;">
+                <header class="major form-title">
+                    <h2>화상 통화방 생성</h2>
+                    <p>트레이너를 위한 새로운 화상 통화방을 만듭니다.</p>
+                </header>
+                <form th:action="@{/video-rooms/create}" method="post" class="form-container">
+                    <div class="form-group">
+                        <label for="roomName">방 이름</label>
+                        <input type="text" id="roomName" name="roomName" class="form-control" placeholder="방 이름을 입력하세요" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="roomPassword">방 비밀번호</label>
+                        <input type="password" id="roomPassword" name="roomPassword" class="form-control" placeholder="비밀번호를 입력하세요" required />
+                    </div>
+                    <div class="actions-container">
+                        <button type="submit" class="submit-button">방 생성하기</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

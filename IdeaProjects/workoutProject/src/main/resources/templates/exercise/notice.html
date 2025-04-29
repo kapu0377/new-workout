@@ -1,0 +1,112 @@
+<!DOCTYPE HTML>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/basic.html}" xmlns:sec="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>운동게시판</title>
+    <th:block layout:fragment="link">
+        <link rel="stylesheet" th:href="@{/assets/css/base.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/layout.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/components.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/utilities.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/variables.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/boardList.css}"/>
+    </th:block>
+</head>
+
+<div layout:fragment="content" id="main-wrapper">
+    <div class="wrapper style2">
+        <div class="inner">
+            <div class="container">
+                <div class="board-container">
+                    <!-- 게시판 헤더 -->
+                    <div class="board-header">
+                        <h2 class="board-title">운동게시판</h2>
+                        <div class="board-actions">
+                            <form action="/exercise/notice" class="search-form" style="display:inline-block;margin-right:10px;">
+                                <input type="search" name="keyword" th:value="${pageRequestDTO.keyword}"
+                                       class="search-input" placeholder="검색어를 입력하세요" />
+                                <button type="submit" class="faq-button">검색</button>
+                            </form>
+                            <button class="write-button"
+                                    onclick="location.href='/exercise/add'"
+                                    sec:authorize="hasRole('ROLE_ADMIN')">
+                                글쓰기
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 비디오 그리드 -->
+                    <div class="video-grid" th:with="link = ${pageRequestDTO.getLink()}">
+                        <div class="video-card" th:each="dto:${pageResponseDTO.dtoList}">
+                            <div class="video-container">
+                                <iframe th:src="${dto.url}"
+                                        title="YouTube video player"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        referrerpolicy="strict-origin-when-cross-origin"
+                                        allowfullscreen>
+                                </iframe>
+                            </div>
+                            <div class="video-info">
+                                <h3 class="video-title" th:text="${dto.title}">제목</h3>
+                                <p class="video-content" th:text="${dto.content}">내용</p>
+                                <a th:href="|@{/exercise/read(eno=${dto.eno})}&${pageRequestDTO.link}|"
+                                   class="detail-button">자세히보기</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 페이지네이션 -->
+                    <div class="pagination-container">
+                        <button th:if="${pageResponseDTO.page > 1}"
+                                th:data-num="1"
+                                class="pagination-btn">1</button>
+                        <button th:if="${pageResponseDTO.page > 2}"
+                                th:data-num="${pageResponseDTO.page - 1}"
+                                class="pagination-btn"
+                                th:text="${pageResponseDTO.page - 1}">이전</button>
+                        <button th:if="${pageResponseDTO.page != 1 && pageResponseDTO.page != pageResponseDTO.last}"
+                                class="pagination-btn active"
+                                th:text="${pageResponseDTO.page}"
+                                disabled>현재</button>
+                        <button th:if="${pageResponseDTO.page < pageResponseDTO.last - 1}"
+                                th:data-num="${pageResponseDTO.page + 1}"
+                                class="pagination-btn"
+                                th:text="${pageResponseDTO.page + 1}">다음</button>
+                        <button th:if="${pageResponseDTO.last > 1}"
+                                th:data-num="${pageResponseDTO.last}"
+                                class="pagination-btn"
+                                th:text="${pageResponseDTO.last}">마지막</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script layout:fragment="script" th:inline="javascript">
+    // 썸네일 로더 스크립트 추가
+    import("/assets/js/exercise/thumbnailLoader.js").then(module => {
+        // 모듈 로드 완료 이벤트 (아무 작업이 필요 없음, DOMContentLoaded에서 처리)
+    }).catch(err => console.error('썸네일 로더 로드 중 오류:', err));
+
+    document.querySelector(".pagination-container").addEventListener("click", (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+
+        const target = e.target;
+        if(!target.classList.contains('pagination-btn') || target.disabled){
+            return;
+        }
+
+        const num = target.getAttribute("data-num");
+        const formObj = document.querySelector("form");
+        formObj.innerHTML += `<input type="hidden" name="page" value="${num}">`;
+        formObj.submit();
+    }, false);
+</script>
+
+</html>

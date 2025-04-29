@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/basic.html}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
+    <title>화상통화 방</title>
+    <th:block layout:fragment="link">
+        <link rel="stylesheet" th:href="@{/assets/css/base.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/layout.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/components.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/utilities.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/variables.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/videoRoom.css}"/>
+    </th:block>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="wrapper style2">
+        <div class="inner">
+            <div class="content-container">
+                <h2>화상통화 방</h2>
+                <div th:if="${isTrainer}">
+                    <span class="badge badge-trainer">트레이너</span>
+                </div>
+                <div th:if="${!isTrainer}">
+                    <span class="badge badge-customer">고객</span>
+                </div>
+                
+                <div class="control-panel">
+                    <button id="startBtn">카메라 시작</button>
+                    <div id="connectionStatus">연결 대기 중...</div>
+                </div>
+                
+                <div class="video-section">
+                    <div class="local-video-container">
+                        <h3>내 화면</h3>
+                        <video id="localVideo" autoplay muted playsinline></video>
+                    </div>
+                    
+                    <div>
+                        <h3>참가자 화면</h3>
+                        <div id="remoteVideos"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+    <script th:inline="javascript">
+        console.log('초기화 스크립트 실행됨');
+        
+        try {
+            const csrfToken = document.querySelector("meta[name='_csrf']")?.content;
+            const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content;
+            window.csrfToken = csrfToken;
+            window.csrfHeader = csrfHeader;
+            
+            console.log('CSRF 토큰 로드됨:', csrfToken ? '있음' : '없음');
+            
+            const roomId = /*[[${roomId}]]*/ '';
+            const isTrainer = /*[[${isTrainer}]]*/ false;
+            
+            console.log('방 번호(roomId):', roomId);
+            console.log('트레이너 여부(isTrainer):', isTrainer);
+            
+            window.roomId = roomId;
+            window.isTrainer = isTrainer;
+            
+            function updateConnectionStatus(status) {
+                const statusElement = document.getElementById('connectionStatus');
+                if (statusElement) {
+                    statusElement.textContent = status;
+                } else {
+                    console.error('connectionStatus 요소를 찾을 수 없음');
+                }
+            }
+        } catch (e) {
+            console.error('초기화 오류:', e);
+        }
+    </script>
+    <script th:src="@{/js/videoCall.js(v=${#dates.createNow().getTime()})}"></script>
+
+</div> 
+
+</body>
+</html>

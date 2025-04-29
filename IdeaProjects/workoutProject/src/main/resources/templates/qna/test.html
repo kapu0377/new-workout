@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QnA API 테스트</title>
+    <style>
+        /* 깔끔한 스타일링을 위한 CSS */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .result {
+            background-color: #f5f5f5;
+            padding: 10px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+
+        .qna-list {
+            margin-top: 10px;
+        }
+
+        .qna-item {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+<h1>QnA API 테스트</h1>
+
+<!-- QnA 목록 조회 섹션 -->
+<div class="section">
+    <h2>QnA 목록 조회</h2>
+    <button onclick="getQnaList()">목록 조회</button>
+    <div id="qnaListResult" class="qna-list"></div>
+</div>
+
+<!-- QnA 상세 조회 섹션 -->
+<div class="section">
+    <h2>QnA 상세 조회</h2>
+    <input type="number" id="detailQno" placeholder="조회할 QnA 번호">
+    <button onclick="getQnaDetail()">상세 조회</button>
+    <div id="qnaDetailResult" class="result"></div>
+</div>
+
+<!-- QnA 등록 섹션 -->
+<div class="section">
+    <h2>QnA 등록</h2>
+    <input type="text" id="title" placeholder="제목">
+    <textarea id="questionText" placeholder="질문 내용"></textarea>
+    <button onclick="registerQna()">질문 등록</button>
+    <div id="registerResult" class="result"></div>
+</div>
+
+<!-- 답변 등록 섹션 -->
+<div class="section">
+    <h2>답변 등록</h2>
+    <input type="number" id="replyQno" placeholder="답변할 QnA 번호">
+    <textarea id="replyText" placeholder="답변 내용"></textarea>
+    <button onclick="addReply()">답변 등록</button>
+    <div id="replyResult" class="result"></div>
+</div>
+
+<!-- 질문 완료 처리 섹션 -->
+<div class="section">
+    <h2>질문 완료 처리</h2>
+    <input type="number" id="completeQno" placeholder="완료 처리할 QnA 번호">
+    <label>
+        <input type="checkbox" id="completed"> 완료 처리
+    </label>
+    <button onclick="completeQna()">상태 변경</button>
+    <div id="completeResult" class="result"></div>
+</div>
+
+<script>
+    // API 호출을 위한 기본 설정
+    const headers = {
+        'Content-Type': 'application/json',
+    };
+
+    // QnA 목록 조회
+    async function getQnaList() {
+        try {
+            const response = await fetch('/qna/api/list');
+            const data = await response.json();
+            const resultDiv = document.getElementById('qnaListResult');
+            resultDiv.innerHTML = data.map(qna => `
+                    <div class="qna-item">
+                        <h3>${qna.title}</h3>
+                        <p>작성자: ${qna.writer}</p>
+                        <p>등록일: ${qna.regDate}</p>
+                        <p>상태: ${qna.completed ? '완료' : '진행중'}</p>
+                    </div>
+                `).join('');
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    // QnA 상세 조회
+    async function getQnaDetail() {
+        const qno = document.getElementById('detailQno').value;
+        try {
+            const response = await fetch(`/qna/api/${qno}`);
+            const data = await response.json();
+            document.getElementById('qnaDetailResult').textContent =
+                JSON.stringify(data, null, 2);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    // QnA 등록
+    async function registerQna() {
+        const qnaData = {
+            title: document.getElementById('title').value,
+            questionText: document.getElementById('questionText').value
+        };
+        try {
+            const response = await fetch('/qna/api/register', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(qnaData)
+            });
+            const data = await response.json();
+            document.getElementById('registerResult').textContent =
+                JSON.stringify(data, null, 2);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    // 답변 등록
+    async function addReply() {
+        const qno = document.getElementById('replyQno').value;
+        const replyData = {
+            replyText: document.getElementById('replyText').value
+        };
+        try {
+            const response = await fetch(`/qna/api/${qno}/reply`, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(replyData)
+            });
+            const data = await response.json();
+            document.getElementById('replyResult').textContent =
+                JSON.stringify(data, null, 2);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    // 질문 완료 처리
+    async function completeQna() {
+        const qno = document.getElementById('completeQno').value;
+        const completed = document.getElementById('completed').checked;
+        try {
+            const response = await fetch(`/qna/api/${qno}/completed?completed=${completed}`, {
+                method: 'PATCH',
+                headers: headers
+            });
+            const data = await response.json();
+            document.getElementById('completeResult').textContent =
+                JSON.stringify(data, null, 2);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+</script>
+</body>
+</html>

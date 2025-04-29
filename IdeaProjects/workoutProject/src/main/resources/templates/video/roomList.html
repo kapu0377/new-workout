@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/basic.html}">
+<th:block layout:fragment="link">
+    <title>화상 통화방 목록</title>
+    <link rel="stylesheet" th:href="@{/assets/css/base.css}"/>
+    <link rel="stylesheet" th:href="@{/assets/css/layout.css}"/>
+    <link rel="stylesheet" th:href="@{/assets/css/components.css}"/>
+    <link rel="stylesheet" th:href="@{/assets/css/utilities.css}"/>
+    <link rel="stylesheet" th:href="@{/assets/css/variables.css}"/>
+    <link rel="stylesheet" th:href="@{/assets/css/videoRoom.css}"/>
+</th:block>
+<div layout:fragment="content">
+    <div class="wrapper style2">
+        <div class="inner">
+            <div class="container">
+                <header class="major">
+                    <h2>화상 통화방 목록</h2>
+                    <p>참여 가능한 화상 통화방 목록입니다.</p>
+                </header>
+
+                <div class="table-wrapper">
+                    <table class="room-table">
+                        <thead>
+                            <tr>
+                                <th>방 이름</th>
+                                <th>참여</th>
+                                <th sec:authorize="hasRole('ADMIN')">관리</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(rooms)}">
+                                <td colspan="3" class="empty-message">생성된 방이 없습니다.</td>
+                            </tr>
+                            <tr th:each="room : ${rooms}">
+                                <td th:text="${room.roomName}">방 이름 예시</td>
+                                <td>
+                                    <a th:href="@{/video-rooms/roomPassword(roomId=${room.roomId})}" class="join-button">참여하기</a>
+                                </td>
+                                <td sec:authorize="hasRole('ADMIN')">
+                                    <form th:action="@{/video-rooms/delete}" method="post" style="display:inline;">
+                                        <input type="hidden" name="roomId" th:value="${room.roomId}" />
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                        <button type="submit" class="delete-button" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                 <div style="margin-top: 1.5em; text-align: center;" sec:authorize="hasRole('ADMIN')">
+                     <a href="/video-rooms/create" class="create-button">새 방 만들기</a>
+                 </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+</html>

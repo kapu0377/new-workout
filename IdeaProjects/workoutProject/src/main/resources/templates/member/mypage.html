@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.w3.org/1999/xhtml"
+      layout:decorate="~{layout/basic}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1 shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <title>마이페이지</title>
+    <link th:href="@{/assets/css/member.css}" rel="stylesheet"/>
+</head>
+
+<div layout:fragment="content">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            
+            <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1"> 
+                <form id="accesspanel" action="/member/mypage" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <h1 class="form-title">나의 정보</h1>
+
+                    <div class="mb-4">
+                        <div class="profile-image-container" style="text-align: center;">
+                            <img th:if="${member.profileImageUuid != null}"
+                                 th:src="@{/member/profile/s_} + ${member.profileImageUuid} + '_' + ${member.profileImageName}"
+                                 class="img-fluid rounded-circle profile-image"
+                                 alt="프로필 이미지"
+                                 style="width: 150px; height: 150px; object-fit: cover; margin-bottom: 15px;">
+                            <img th:unless="${member.profileImageUuid != null}"
+                                 src="/images/default-profile.png"
+                                 class="img-fluid rounded-circle profile-image"
+                                 alt="기본 프로필 이미지"
+                                 style="width: 150px; height: 150px; object-fit: cover; margin-bottom: 15px;">
+                        </div>
+                        <div style="text-align: center;">
+                            <input type="file" id="profileImageInput" name="profileImage" accept="image/*" style="display: none;">
+                            <button type="button" class="form-button" onclick="document.getElementById('profileImageInput').click()">
+                                프로필 사진 변경
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label" th:for="mid">아이디</label>
+                        <input type="text" th:name="mid" th:id="mid" th:value="${member.mid}" class="form-input" readonly>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label" th:for="mpw">비밀번호</label>
+                        <input type="password" th:name="mpw" th:id="mpw" class="form-input" placeholder="비밀번호"/>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label" for="mpwCheck">비밀번호 확인</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="password" id="mpwCheck" class="form-input" placeholder="비밀번호 확인" style="flex-grow: 1;"/>
+                            <button type="button" class="form-button" id="pwCheckBtn" style="width: auto; margin-top: 0;">확인</button>
+                        </div>
+                        <span id="pwMatchMessage" class="error-message" style="display: none;"></span>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label" th:for="email">이메일</label>
+                        <input type="email" th:name="email" th:id="email" th:value="${member.email}" class="form-input" placeholder="이메일">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label" th:for="age">나이</label>
+                        <input type="number" th:name="age" th:id="age" th:value="${member.age}" class="form-input" placeholder="나이">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label" th:for="height">키</label>
+                        <input type="number" th:name="height" th:id="height" th:value="${member.height}" class="form-input" placeholder="키">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label" th:for="weight">몸무게</label>
+                        <input type="number" th:name="weight" th:id="weight" th:value="${member.weight}" class="form-input" placeholder="몸무게">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label" th:for="phone">전화번호</label>
+                        <input type="number" th:name="phone" th:id="phone" th:value="${member.phone}" class="form-input" placeholder="전화번호">
+                    </div>
+
+                    <button type="submit" class="form-button" id="submitBtn" disabled>수정완료</button>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button type="button" class="form-button" onclick="window.location.href='/'" style="background: #6c757d;">취소</button>
+                        <button type="button" class="form-button deleteBtn" style="background: #dc3545;">탈퇴하기</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script layout:fragment="script" th:src="@{/assets/js/member/mypage.js}"></script>
+
+</html>

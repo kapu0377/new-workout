@@ -1,0 +1,8 @@
+diff a/workoutProject/src/main/java/org/zerock/workoutproject/member/service/MemberService.java b/workoutProject/src/main/java/org/zerock/workoutproject/member/service/MemberService.java	(rejected hunks)
+@@ -26,5 +26,6 @@
+ 
+     boolean midCheck(String mid);
+ 
++    class MidExistException extends Exception {
+     }
+ }

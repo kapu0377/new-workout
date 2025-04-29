@@ -1,0 +1,378 @@
+@import url('base.css');
+@import url('variables.css');
+@import url('utilities.css');
+@import url('components.css');
+
+.board-container {
+    background: #fff;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: 38px 32px 32px 32px;
+    margin-top: 32px;
+    min-height: 650px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+}
+
+.board-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: var(--text-dark);
+}
+
+.board-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 20px 0;
+    font-size: 14px;
+    transition: opacity 0.3s ease, transform 0.2s ease;
+}
+
+.board-table th, .board-table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.board-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.board-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.board-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.pagination-container {
+    margin-top: auto;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s ease;
+}
+
+.pagination-container .pagination-btn {
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+    font-size: 14px;
+    color: var(--text-medium);
+    cursor: pointer;
+    transition: var(--transition-normal);
+}
+
+.pagination-container .pagination-btn:hover {
+    background-color: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.pagination-container .pagination-btn.active {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: var(--text-white);
+    font-weight: bold;
+    cursor: default;
+}
+
+.pagination-container .pagination-btn:disabled {
+    background-color: #f9f9f9;
+    border-color: #ddd;
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+.faq-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.faq-modal-content {
+    background: #fff;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 8px;
+    width: 400px;
+    position: relative;
+}
+
+.faq-close {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* 폼 스타일 - 자유게시판 스타일과 통일 */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    color: var(--text-dark);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    outline: none;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.image-upload-area, .board-dropzone {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 25px;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: all 0.3s;
+    background-color: #fafbfc;
+}
+
+.image-upload-area:hover, .board-dropzone:hover {
+    border-color: var(--primary);
+    background-color: #f8fafc;
+}
+
+.image-upload-container {
+    margin-bottom: 1.5rem;
+}
+
+.image-preview-container, .uploadResult {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.image-preview-item, .uploaded-image {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 5px;
+}
+
+.image-preview-item img, .preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.remove-image, .remove-image-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+/* 버튼 스타일링 통일 */
+.primary-button, 
+.secondary-button,
+.register-button, 
+.return-button {
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.primary-button, .register-button {
+    background-color: var(--primary);
+    color: white;
+}
+
+.primary-button:hover, .register-button:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.secondary-button, .return-button {
+    background-color: #f3f4f6;
+    color: var(--text-dark);
+}
+
+.secondary-button:hover, .return-button:hover {
+    background-color: #e5e7eb;
+    transform: translateY(-2px);
+}
+
+.return-button a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.error-message {
+    color: #dc2626;
+    margin-bottom: 1rem;
+}
+
+.user-info {
+    margin-bottom: 1.5rem;
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+/* 게시판 글쓰기 스타일 */
+.bbsview_list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.bbsview_list li {
+    margin-bottom: 1.5rem;
+}
+
+.mt-4 {
+    margin-top: 1rem;
+}
+
+.flex {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.board-actions .faq-button,
+.board-actions .write-button {
+    background: #2563eb;
+    color: #fff;
+    border-radius: 8px;
+    font-size: 1rem;
+    padding: 0.6rem 1.4rem;
+    margin-left: 10px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.07);
+    transition: background 0.16s;
+}
+
+.board-actions .faq-button:hover,
+.board-actions .write-button:hover {
+    background: #1e40af;
+}
+
+.search-input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 300px;
+}
+
+@media (max-width: 600px) {
+    .board-container {
+        padding: 12px 4px;
+    }
+    .faq-modal-content {
+        width: 90%;
+        padding: 10px;
+    }
+}
+
+/* 로딩 상태 표시를 위한 스타일 */
+.board-container .loading-row {
+    display: table-row;
+    height: 350px;
+}
+
+.board-container .loading-cell {
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    color: var(--text-light);
+    font-size: 16px;
+    padding: 40px 0;
+    opacity: 0.8;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 0.9; }
+    100% { opacity: 0.6; }
+}
+
+.board-table td a {
+    transition: color 0.2s ease;
+}
+
+.board-table tr {
+    transition: background-color 0.2s ease;
+}
+
+/* 빈 테이블 높이 유지 */
+.board-table tr.empty-row td {
+    height: 350px;
+    padding: 40px 0;
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* 테이블 래퍼에 고정 높이 지정 */
+.table-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 450px;
+    transition: all 0.3s ease;
+}
+
+.fade-in {
+    animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

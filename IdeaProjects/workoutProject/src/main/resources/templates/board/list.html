@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/basic.html}">
+<head>
+    <title>자유게시판</title>
+    <th:block layout:fragment="link">
+        <link rel="stylesheet" th:href="@{/assets/css/boardList.css}"/>
+        <link rel="modulepreload" th:href="@{/assets/js/board/list.js}">
+    </th:block>
+</head>
+<div layout:fragment="content" id="main-wrapper">
+    <div class="wrapper style2">
+        <div class="inner">
+            <div class="container">
+                <div class="board-container">
+                    <!-- 게시판 헤더 -->
+                    <div class="board-header">
+                        <h2 class="board-title">자유게시판</h2>
+                        <div class="board-actions">
+                            <form action="/board/list" class="search-form" style="display:inline-block; margin-right: 10px;">
+                                <input type="search" name="keyword" th:value="${pageRequestDTO.keyword}"
+                                       class="search-input" placeholder="검색어를 입력하세요" />
+                                <button type="submit" class="faq-button">검색</button>
+                            </form>
+                            <button class="write-button"
+                                    onclick="location.href='/board/add'"
+                                    th:if="${#authorization.expression('hasAnyRole(''ROLE_ADMIN'', ''ROLE_USER'')')}">
+                                글쓰기
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="board-table">
+                            <thead>
+                            <tr>
+                                <th class="no-border">번호</th>
+                                <th>제목</th>
+                                <th>작성자</th>
+                                <th>작성일</th>
+                                <th>조회수</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="board : ${responseDTO.dtoList}">
+                                <td class="no-border">[[${board.bno}]]</td>
+                                <td>
+                                    <a th:href="@{/board/read(bno=${board.bno})}" class="post-title">
+                                        [[${board.title}]]
+                                    </a>
+                                </td>
+                                <td class="text-center">[[${board.writer}]]</td>
+                                <td class="text-center"
+                                    th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd')}"></td>
+                                <td class="text-center view-count"
+                                    th:id="'view-count-' + ${board.bno}">
+                                    <th:block th:text="${board.view != null ? board.view : 0}"></th:block>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- 페이지네이션 -->
+                    <div class="pagination-container">
+                        <!-- 처음 버튼 -->
+                        <button th:if="${responseDTO.page > 1}"
+                                th:data-num="1"
+                                class="pagination-btn first-page">처음</button>
+
+                        <!-- 페이지 번호 -->
+                        <button th:each="page : ${responseDTO.pageList}"
+                                th:data-num="${page}"
+                                th:text="${page}"
+                                th:classappend="${page == responseDTO.page} ? 'active' : ''"
+                                class="pagination-btn"></button>
+
+                        <!-- 마지막 버튼 -->
+                        <button th:if="${responseDTO.page < responseDTO.last}"
+                                th:data-num="${responseDTO.last}"
+                                class="pagination-btn last-page">마지막</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 자바스크립트 섹션 -->
+<th:block layout:fragment="script">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script type="module" th:src="@{/assets/js/board/list.js}"></script>
+</th:block>
+</html>

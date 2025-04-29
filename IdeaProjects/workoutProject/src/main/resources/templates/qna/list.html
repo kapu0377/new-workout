@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/basic.html}">
+
+<head>
+    <title>QnA 게시판</title>
+    <th:block layout:fragment="link">
+        <link rel="modulepreload" th:href="@{/assets/js/qna/list.js}">
+        <link rel="modulepreload" th:href="@{/assets/js/qna/module/HttpClient.js}">
+        <link rel="modulepreload" th:href="@{/assets/js/qna/module/UIManager.js}">
+        <link rel="stylesheet" th:href="@{/assets/css/base.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/layout.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/components.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/utilities.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/variables.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/qna.css}"/>
+        <script th:src="@{/assets/js/qna/faq.js}"></script>
+        <script type="module" th:src="@{/assets/js/qna/list.js}"></script>
+    </th:block>
+</head>
+
+<!-- 메인 콘텐츠 영역 -->
+<div layout:fragment="content" id="main-wrapper">
+    <div class="wrapper style2">
+        <div class="inner">
+            <div class="container">
+                <div class="board-container">
+                    <div class="board-header">
+                        <h2 class="board-title">QnA 게시판</h2>
+                        <div class="board-actions">
+                            <form action="/qna/list" class="search-form" style="display:inline-block; margin-right: 10px;">
+                            </form>
+                            <button class="faq-button" onclick="openFaqModal()">FAQ 확인하기</button>
+                            <button class="write-button"
+                                    onclick="location.href='/qna/register'"
+                                    th:if="${#authorization.expression('hasAnyRole(''ROLE_ADMIN'', ''ROLE_USER'')')}">
+                                글쓰기
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="board-table">
+                            <thead>
+                            <tr>
+                                <th class="post-number">번호</th>
+                                <th class="post-title">제목</th>
+                                <th class="post-writer">작성자</th>
+                                <th class="post-date">작성일</th>
+                                <th class="post-status">상태</th>
+                            </tr>
+                            </thead>
+                            <tbody id="qnaListBody">
+                            </tbody>
+                        </table>
+
+                        <div id="pagination" class="pagination-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="faqModal" class="faq-modal">
+        <div class="faq-modal-content">
+            <span class="faq-close">&times;</span>
+            <h2>자주 묻는 질문</h2>
+            <div id="faqList"></div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</div>
+
+</html>

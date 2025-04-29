@@ -1,0 +1,252 @@
+<!DOCTYPE HTML>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/basic.html}">
+<head th:fragment="head">
+    <th:block layout:fragment="link">
+        <link rel="stylesheet" th:href="@{/assets/css/boardList.css}"/>
+    </th:block>
+</head>
+<div layout:fragment="content" id="main-wrapper">
+    <div class="wrapper style2">
+        <div class="inner">
+            <div class="container">
+                <div id="content">
+                    <header>
+                        <h3>글 수정</h3>
+                    </header>
+                    <div>
+                        <form action="/board/modify" method="POST" id="f1">
+                            <input type="hidden" name="bno" th:value="${board.bno}">
+                            <ul class="bbsview_list">
+                                <li class="bbs_title">
+                                    <label style="margin-bottom: 15px;"><h5>제목</h5></label>
+                                    <input type="text" name="title" size="110" style="margin-bottom: 30px;"
+                                           th:value="${board.title}">
+                                </li>
+                                <li class="bbs_writer">
+                                    <div>
+                                        <label style="margin-bottom: 15px;"><h5>작성자</h5></label>
+                                        <input type="text" name="writer" class="form-control"
+                                               th:value="${#authentication.principal.username}" readonly>
+                                    </div>
+                                </li>
+                                <li class="bbs_content">
+                                    <div class="editer_content">
+                                        <label style="margin-bottom: 15px;"><h5>내용</h5></label>
+                                        <textarea name="content" cols="110" rows="20" style="margin-bottom: 30px;">[[${board.content}]]</textarea>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="mb-6">
+                                        <label class="block text-sm mb-2">이미지</label>
+                                        <div class="uploadHidden" style="display: none;">
+                                            <input type="file" name="files" accept="image/*" multiple id="file-upload">
+                                        </div>
+                                        <div id="drop-zone" class="board-dropzone" onclick="document.getElementById('file-upload').click()">
+                                            <p class="text-gray-500 text-sm">이미지를 드래그하여 놓거나 클릭하여 선택하세요</p>
+                                        </div>
+                                        <div class="mt-4">
+                                            <div class="uploadResult flex flex-row flex-wrap gap-4">
+                                                <th:block th:each="fileName:${board.fileNames}">
+                                                    <div class="uploaded-image" style="display: inline-block; position: relative; margin: 5px;" th:with="arr = ${fileName.split('_')}">
+                                                        <div style="position: relative; width: 150px; height: 150px;">
+                                                            <img th:src="|/view/s_${fileName}|" th:data-src="${fileName}"
+                                                                 style="width: 150px; height: 150px; object-fit: contain;">
+                                                            <button type="button" th:onclick="removeFile([[${arr[0]}]], [[${arr[1]}]], this)"
+                                                                    style="position: absolute; top: 5px; right: 5px; background: #ff6b6b; color: white;
+                                                                           border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer;
+                                                                           display: flex; align-items: center; justify-content: center; font-size: 14px;">×</button>
+                                                        </div>
+                                                        <p style="margin-top: 5px; font-size: 12px; color: #666; word-break: break-all; max-width: 150px;">
+                                                            [[${arr[1]}]]
+                                                        </p>
+                                                    </div>
+                                                </th:block>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div style="margin-top: 50px;">
+                                        <button type="button" class="return-button modBtn">수정</button>
+                                        <button type="button" class="return-button">
+                                            <a th:href="|@{/board/list}?${list}|">목록</a>
+                                        </button>
+                                        <button type="button" class="btn-danger removeBtn">삭제</button>
+                                    </div>
+                                </li>
+                            </ul>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/assets/js/upload.js"></script>
+</div>
+
+<script layout:fragment="script" th:inline="javascript">
+    function showUploadFile({uuid, fileName, link}) {
+        const str = `
+            <div class="uploaded-image" style="display: inline-block; position: relative; margin: 5px;">
+                <div style="position: relative; width: 150px; height: 150px;">
+                    <img src="/view/${link}" data-src="${uuid}_${fileName}"
+                         style="width: 150px; height: 150px; object-fit: contain;">
+                    <button type="button" onclick="javascript:removeFile('${uuid}', '${fileName}', this)"
+                            style="position: absolute; top: 5px; right: 5px; background: #ff6b6b; color: white;
+                                   border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer;
+                                   display: flex; align-items: center; justify-content: center; font-size: 14px;">×</button>
+                </div>
+                <p style="margin-top: 5px; font-size: 12px; color: #666; word-break: break-all; max-width: 150px;">
+                    ${fileName}
+                </p>
+            </div>`;
+
+        document.querySelector(".uploadResult").insertAdjacentHTML('beforeend', str);
+    }
+
+    const removeFileList = [];
+
+    // 파일 삭제 함수
+    function removeFile(uuid, fileName, obj) {
+        if (!confirm('이미지를 삭제하시겠습니까?')) {
+            return;
+        }
+
+        const targetDiv = obj.closest('.uploaded-image');
+        removeFileList.push({uuid, fileName});  // 삭제 대기 목록에 추가
+        targetDiv.remove();  // 화면에서 제거
+    }
+
+    // 파일 처리 함수
+    function handleFiles(files) {
+        const formData = new FormData();
+        Array.from(files).forEach(file => {
+            if (file.type.startsWith('image/')) {
+                formData.append('files', file);
+            }
+        });
+
+        if (formData.has('files')) {
+            uploadToServer(formData).then(results => {
+                results.forEach(result => showUploadFile(result));
+            }).catch(error => {
+                console.error('업로드 중 오류가 발생했습니다:', error);
+            });
+        }
+    }
+
+    // DOM 요소 참조
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-upload');
+
+    // 이벤트 리스너 설정
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, function () {
+            dropZone.style.borderColor = '#4a90e2';
+            dropZone.style.backgroundColor = '#f8fafc';
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, function () {
+            dropZone.style.borderColor = '#e5e7eb';
+            dropZone.style.backgroundColor = 'transparent';
+        });
+    });
+
+    // 드롭 이벤트 처리
+    dropZone.addEventListener('drop', function (e) {
+        const files = e.dataTransfer.files;
+        handleFiles(files);
+    });
+
+    // 파일 입력 변경 이벤트 처리
+    fileInput.addEventListener('change', function (e) {
+        handleFiles(e.target.files);
+    });
+
+    function appendFileData() {
+        const target = document.querySelector(".uploadHidden");
+        const uploadFiles = document.querySelectorAll(".uploadResult img");
+        let str = '';
+        uploadFiles.forEach(uploadFile => {
+            const imgLink = uploadFile.getAttribute("data-src");
+            str += `<input type='hidden' name='fileNames' value="${imgLink}">`;
+        });
+        target.innerHTML = str;
+    }
+
+    function callRemoveFiles() {
+        removeFileList.forEach(({uuid, fileName}) => {
+            removeFileToServer({uuid, fileName});
+        });
+    }
+
+    // 수정 버튼 이벤트
+    const formObj = document.querySelector("#f1");
+    document.querySelector(".modBtn").addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // 필수 입력값 검증
+        const title = formObj.querySelector('input[name="title"]').value;
+        const content = formObj.querySelector('textarea[name="content"]').value;
+
+        if (!title.trim()) {
+            alert('제목을 입력해주세요.');
+            return;
+        }
+
+        if (!content.trim()) {
+            alert('내용을 입력해주세요.');
+            return;
+        }
+
+        const link = [[${pageRequestDTO.getLink()}]];
+        formObj.action = `/board/modify?${link}`;
+        appendFileData();
+        callRemoveFiles();
+        formObj.method = 'post';
+        formObj.submit();
+    }, false);
+
+    // 삭제 버튼 이벤트
+    document.querySelector(".removeBtn").addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if(confirm('정말 삭제하시겠습니까?')) {
+            formObj.action = `/board/remove`;
+            formObj.method = "post";
+            formObj.submit();
+        }
+    }, false);
+
+    // 에러 처리
+    const errors = [[${errors}]];
+    console.log(errors);
+    let errorMsg = '';
+    if (errors) {
+        for (let i = 0; i <errors.length; i++) {
+            errorMsg += `${errors[i].field}은(는) ${errors[i].code} \n`;
+        }
+        alert(errorMsg);
+    }
+
+    const auth = [[${#authentication.principal}]];
+    const errors2 = [[${error}]];
+    console.log(auth);
+    console.log(errors2);
+</script>
+</html>

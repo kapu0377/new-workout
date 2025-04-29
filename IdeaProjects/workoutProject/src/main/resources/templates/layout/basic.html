@@ -1,0 +1,112 @@
+<!DOCTYPE HTML>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>WORK OUT</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
+    <link rel="stylesheet" th:href="@{/assets/css/variables.css}" />
+    <link rel="stylesheet" th:href="@{/assets/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/assets/css/utilities.css}" />
+    <link rel="stylesheet" th:href="@{/assets/css/components.css}" />
+    <link rel="stylesheet" th:href="@{/assets/css/layout.css}" />
+    <link rel="stylesheet" th:href="@{/assets/css/footer.css}" />
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon" />
+    <th:block layout:fragment="link"></th:block>
+</head>
+<body class="left-sidebar is-preload">
+<div id="page-wrapper">
+    <div id="header-wrapper">
+        <div class="welcome-banner">
+            <div class="container">
+                <th:block sec:authorize="isAuthenticated()">
+                <span class="welcome-text">
+                    <span sec:authentication="principal.username"></span>님 반갑습니다
+                </span>
+                    <a th:href="@{/member/mypage}" class="auth-link">마이페이지</a>
+                    <form id="logoutForm" th:action="@{/logout}" method="post" class="inline-form">
+                        <div th:if="${_csrf != null}">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        </div>
+                        <button type="submit" class="auth-link logout-btn">로그아웃</button>
+                    </form>
+                </th:block>
+                <th:block sec:authorize="isAnonymous()">
+                    <a th:href="@{/member/login}" class="auth-link">로그인</a>
+                    <a th:href="@{/member/join}" class="auth-link">회원가입</a>
+                </th:block>
+            </div>
+        </div>
+        <div class="container">
+            <header id="header">
+                <div class="inner">
+                    <h1><a th:href="@{/}" id="logo">WORK OUT</a></h1>
+                    <nav id="nav">
+                        <ul>
+                            <li><a th:href="@{/}" class="nav-link" data-path="/">Home</a></li>
+                            <li><a th:href="@{/exercise/notice}" class="nav-link" data-path="exercise">운동게시판</a></li>
+                            <li><a th:href="@{/board/list}" class="nav-link" data-path="board">자유게시판</a></li>
+                            <li><a th:href="@{/video-rooms/list}" class="nav-link" data-path="video">화상PT게시판</a></li>
+                            <li><a th:href="@{/qna/list}" class="nav-link" data-path="qna">Q&A게시판</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </header>
+        </div>
+    </div>
+    <div id="main-wrapper">
+        <div layout:fragment="content" class="wrapper style2">
+            <div class="inner">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="footer-wrapper">
+        <footer id="footer" class="container">
+            <div class="footer-content">
+                <div class="contact-info">
+                    <a href="mailto:info@workout.com">info@workout.com</a>
+                    <span class="divider">|</span>
+                    <span>(051) 111-2222</span>
+                    <span class="divider">|</span>
+                    <span>708, Jungang-daero, Busanjin-gu, Busan</span>
+                </div>
+                <div class="footer-right">
+                    <div class="copyright">
+                        &copy; WorkOut. All rights reserved
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</div>
+<script>
+    // 현재 URL 경로에 따라 메뉴 활성화
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('#nav .nav-link');
+        
+        navLinks.forEach(link => {
+            const pathValue = link.getAttribute('data-path');
+            if (pathValue === '/' && currentPath === '/') {
+                link.classList.add('active');
+            } else if (pathValue !== '/' && currentPath.includes(pathValue)) {
+                link.classList.add('active');
+            }
+        });
+    });
+</script>
+<th:block layout:fragment="script" th:inline="javascript">
+</th:block>
+</body>
+</html>

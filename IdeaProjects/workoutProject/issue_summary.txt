@@ -1,0 +1,35 @@
+## 최근 발생 이슈 및 해결 과정 요약 (issue_summary.txt)
+
+### 1. CSRF(Cross-Site Request Forgery) 설정 관련 이슈
+
+*   **문제점:**
+    *   Spring Security의 CSRF 보호 기능이 활성화된 상태에서 특정 기능(예: 로그아웃, 폼 제출 등)이 예상대로 동작하지 않는 문제가 발생했습니다.
+    *   특히 로그아웃 기능을 GET 방식으로 요청하려고 시도하여 CSRF 보호 정책과 충돌하는 경우가 있었습니다. (`global_rules.md`에서는 POST 방식 로그아웃을 권장).
+    *   JavaScript를 통한 API 호출 시 CSRF 토큰이 제대로 전달되지 않아 요청이 차단되는 문제도 발생 가능성이 있었습니다.
+
+*   **해결 과정:**
+    *   Spring Security 설정을 검토하여 상태 변경을 유발하는 요청(특히 POST, PUT, DELETE 등)에 CSRF 토큰이 올바르게 포함되고 검증되는지 확인했습니다.
+    *   로그아웃과 같이 보안상 중요한 기능은 반드시 POST 방식으로 구현하고, 해당 엔드포인트가 Spring Security 설정에서 올바르게 처리되도록 수정했습니다. (`/logout` 엔드포인트 POST 방식 사용).
+    *   Thymeleaf 등의 템플릿 엔진을 사용할 경우, 폼 전송 시 자동으로 CSRF 히든 필드가 포함되도록 설정되어 있는지 확인했습니다. (`<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />`).
+    *   Axios 등 JavaScript HTTP 클라이언트 사용 시, 요청 헤더에 CSRF 토큰(`X-CSRF-TOKEN`)을 자동으로 포함시키는 설정을 적용하거나 수동으로 추가하는 방식을 검토했습니다.
+
+### 2. 회원가입 시 아이디 중복 체크 기능 오류
+
+*   **문제점:**
+    *   회원가입 페이지(`member/join.html`)에서 아이디 중복 확인 버튼을 클릭해도 기능이 정상적으로 동작하지 않았습니다.
+    *   JavaScript 코드 내에서 아이디 중복 확인을 위해 여러 개의 URL(상대 경로, 절대 경로 혼용)을 순차적으로 시도하는 복잡한 로직(`tryNextEndpoint`)이 구현되어 있었습니다.
+        *   예시: `/check/{id}`, `/member/check/{id}`, `https://capu.blog/check/{id}` 등
+    *   이 방식은 다음과 같은 문제를 유발했습니다.
+        *   **CORS / 혼합 콘텐츠 오류:** 브라우저와 다른 도메인/프로토콜을 가진 절대 경로(`https://capu.blog/...`)로 요청 시 브라우저 보안 정책(SOP) 위반으로 요청이 차단될 수 있었습니다.
+        *   **잘못된 엔드포인트:** 여러 경로 중 실제 서버에 구현되고 접근 허용된 경로는 제한적이었을 가능성이 높습니다.
+        *   **`global_rules.md` 위배:** API 호출 시 상대 경로 사용 원칙에 어긋났습니다.
+
+*   **해결 과정:**
+    *   `member/join.html`의 인라인 JavaScript 코드를 수정했습니다.
+    *   여러 엔드포인트를 시도하는 복잡한 로직(`checkEndpoints` 배열, `tryNextEndpoint` 함수)을 완전히 제거했습니다.
+    *   `axios.get` 요청 시, `global_rules.md` 원칙에 따라 **단일 상대 경로(`/member/check/{id}`)** 만 사용하도록 수정했습니다. (`const checkUrl = \`${contextPath}member/check/\${id}\`;`).
+    *   이를 통해 CORS, 혼합 콘텐츠 오류 가능성을 제거하고 코드의 명확성과 관리 용이성을 높였습니다.
+    *   추가적으로 회원가입 폼 전체의 자동완성 기능을 비활성화하기 위해 `<form>` 태그에 `autocomplete="off"` 속성을 추가했습니다.
+    *   서버 측(`MemberController`, `CustomSecurityConfig`)에서도 해당 상대 경로(`/member/check/**`)가 인증 없이 접근 가능하도록 설정되어 있는지 확인했습니다 (이전 단계에서 조치됨).
+
+이러한 조치를 통해 CSRF 관련 설정 충돌을 방지하고 아이디 중복 체크 기능이 안정적으로 동작하도록 개선했습니다. 

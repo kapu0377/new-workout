@@ -1,0 +1,68 @@
+<!DOCTYPE HTML>
+<html lang="ko"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/basic.html}">
+
+<th:block layout:fragment="link">
+	<!-- <link rel="stylesheet" th:href="@{/assets/css/ex.css}"> -->
+</th:block>
+
+<div layout:fragment="content" id="main-wrapper">
+	<div class="wrapper style2">
+		<div class="inner">
+			<div class="container">
+				<div class="board-container">
+					<div class="board-header">
+						<h2 class="board-title">글 수정</h2>
+					</div>
+
+					<form th:action="@{/exercise/modify}" method="post" class="board-form">
+						<input type="hidden" name="eno" th:value="${dto.eno}">
+
+						<div class="form-group">
+							<label>제목</label>
+							<input type="text" name="title" class="form-input" th:value="${dto.title}">
+						</div>
+
+						<div class="form-group">
+							<label>URL</label>
+							<input type="text" name="url" class="form-input" th:value="${dto.url}">
+						</div>
+
+						<div class="form-group">
+							<label>내용</label>
+							<textarea name="content" class="form-textarea" th:text="${dto.content}"></textarea>
+						</div>
+
+						<div class="form-info">
+							작성일: <span th:text="${#temporals.format(dto.regDate,'yyyy-MM-dd HH:mm:ss')}"></span>
+						</div>
+
+						<div class="button-area">
+							<a th:href="|@{/exercise/notice}?${pageRequestDTO.link}|" class="button list-button">목록</a>
+							<button type="submit" class="button modify-button">수정</button>
+							<button type="button" class="button remove-button removeBtn2">삭제</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<th:block layout:fragment="script">
+	<script th:inline="javascript">
+		const formObj = document.querySelector("form");
+
+		document.querySelector(".removeBtn2").addEventListener("click", function(e) {
+			e.preventDefault();
+			if(!confirm('정말 삭제하시겠습니까?')) return;
+
+			formObj.action = '/exercise/remove';
+			formObj.method = 'post';
+			formObj.submit();
+		}, false);
+	</script>
+</th:block>
+</html>

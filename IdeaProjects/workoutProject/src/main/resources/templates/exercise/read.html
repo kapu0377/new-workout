@@ -1,0 +1,82 @@
+<!DOCTYPE HTML>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/basic.html}">
+
+<th:block layout:fragment="link">
+    <!-- <link rel="stylesheet" th:href="@{/assets/css/ex.css}"> -->
+</th:block>
+
+<div layout:fragment="content" id="main-wrapper">
+    <div class="wrapper style2">
+        <div class="inner">
+            <div class="container board-wrap">
+                <!-- 게시글 컨테이너 -->
+                <div class="board-container">
+                    <div class="board-header">
+                        <h2 class="board-title" th:text="${dto.title}">제목</h2>
+                        <div class="board-info">
+                            <span>작성일: <strong
+                                    th:text="${#temporals.format(dto.regDate, 'yyyy-MM-dd HH:mm')}">날짜</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- 유튜브 영상 섹션 -->
+                    <div class="video-container">
+                        <div class="video-wrapper">
+                            <iframe th:src="${dto.url}"
+                                    title="YouTube video player"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    referrerpolicy="strict-origin-when-cross-origin"
+                                    allowfullscreen>
+                            </iframe>
+                        </div>
+                    </div>
+
+                    <!-- 게시글 내용 -->
+                    <div class="board-content" th:utext="${dto.content}">
+                    </div>
+
+                    <!-- 버튼 영역 -->
+                    <div class="button-area">
+                        <button onclick="location.href='/exercise/notice'" class="button list-button">목록</button>
+                        <button th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}"
+                                th:onclick="|location.href='@{/exercise/modify(eno=${dto.eno})}'|"
+                                class="button modify-button">수정
+                        </button>
+                    </div>
+
+                    <!-- 댓글 섹션 -->
+                    <div class="reply-section"
+                         id="replySection"
+                         th:data-user="${#authorization.expression('isAuthenticated()') ? #authentication.principal?.username:''}"
+                         th:data-admin="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}"
+                         th:data-eno="${dto.eno}">
+                        <h3 class="reply-title">댓글</h3>
+
+
+                        <div class="comment-section" th:if="${#authorization.expression('isAuthenticated()')}">
+                            <textarea class="comment-input" placeholder="댓글을 작성하세요"></textarea>
+                            <button class="button comment-button">등록</button>
+                        </div>
+                        <div th:unless="${#authorization.expression('isAuthenticated()')}">
+                            <p>댓글을 작성하려면 <a href="/member/login">로그인</a>이 필요합니다.</p>
+                        </div>
+
+
+                        <div class="reply-list replyList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="script">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script th:src="@{/assets/js/ex.js}"></script>
+    <script type="module" th:src="@{/assets/js/exercise/thumbnailLoader.js}"></script>
+</th:block>
+</html>

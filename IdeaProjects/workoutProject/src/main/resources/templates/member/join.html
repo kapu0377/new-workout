@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.w3.org/1999/xhtml"
+      layout:decorate="~{layout/basic}">
+<head>
+    <style>
+        /* 크롬, 사파리, 엣지 */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* 파이어폭스 */
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1 shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <meta name="context-path" th:content="@{/}">
+    <title>회원가입</title>
+    <link th:href="@{/assets/css/member.css}" rel="stylesheet"/>
+</head>
+
+<div layout:fragment="content">
+    <div class="container">
+        <form id="registerForm" th:action="@{/member/join}" th:object="${memberDTO}" method="post" enctype="multipart/form-data" onkeydown="if(event.key==='Enter'){event.preventDefault();}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <h1 class="form-title">회원가입</h1>
+            
+            <div class="input-group">
+                <label class="input-label">아이디 (필수)</label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" th:field="*{mid}" class="form-input mid" placeholder="아이디를 입력해 주세요" style="flex-grow: 1;">
+                    <button type="button" class="id-check-button" style="padding: 0.5rem 0.75rem; font-size: 0.9rem;">중복확인</button>
+                </div>
+                <div id="idStatusMessage" class="status-message"></div>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">비밀번호 (필수)</label>
+                <input type="password" th:field="*{mpw}" class="form-input" placeholder="비밀번호를 입력해 주세요">
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label" for="mpwCheck">비밀번호 확인 (필수)</label>
+                <input type="password" id="mpwCheck" class="form-input" placeholder="비밀번호를 다시 입력해주세요"/>
+                <span id="pwMatchMessage" class="error-message" style="display: none;"></span>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label" for="email">이메일 (필수)</label>
+                <div class="email-input-container">
+                    <input type="text" id="emailId" class="form-input email-part" placeholder="이메일 아이디"/>
+                    <span class="email-separator">@</span>
+                    <input type="text" id="emailDomain" class="form-input email-part" placeholder="도메인"/>
+                    <div class="domain-wrapper">
+                        <button type="button" id="domainToggleBtn" class="domain-toggle-btn">▼</button>
+                        <div id="domainSelectContainer" class="domain-select-container" style="display:none;">
+                            <div class="domain-options">
+                                <span class="domain-option" data-domain="naver.com">naver.com</span>
+                                <span class="domain-option" data-domain="gmail.com">gmail.com</span>
+                                <span class="domain-option" data-domain="daum.net">daum.net</span>
+                                <span class="domain-option" data-domain="hanmail.net">hanmail.net</span>
+                                <span class="domain-option" data-domain="nate.com">nate.com</span>
+                                <span class="domain-option" data-domain="">직접입력</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" th:field="*{email}" id="fullEmail"/>
+                <span class="error-message" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label" for="age">나이 (선택)</label>
+                <input type="number" th:field="*{age}" class="form-input" placeholder="나이를 입력해 주세요">
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">키 (선택)</label>
+                <input type="number" th:field="*{height}" class="form-input" placeholder="키를 입력해 주세요">
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">몸무게 (선택)</label>
+                <input type="number" th:field="*{weight}" class="form-input" placeholder="몸무게를 입력해 주세요">
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">전화번호 (필수)</label>
+                <input type="text" th:field="*{phone}" class="form-input" placeholder="전화번호를 입력해 주세요">
+            </div>
+
+            <div class="input-group">
+                <label class="input-label" for="profileImage">프로필 이미지 (선택)</label>
+                <div class="profile-upload-container">
+                    <div class="preview-container" style="display: none;">
+                        <img id="imagePreview" class="profile-preview" alt="프로필 미리보기"
+                             style="max-width: 200px; max-height: 200px; border-radius: 50%; margin-bottom: 10px;">
+                    </div>
+                    <input type="file" id="profileImage" name="profileImage" class="form-input" 
+                           accept="image/*" style="display: none;"/>
+                    <button type="button" class="btn btn-outline-primary" 
+                            onclick="document.getElementById('profileImage').click()">
+                        이미지 선택
+                    </button>
+                    <span id="fileName" class="selected-file-name"></span>
+                </div>
+            </div>
+
+            <button type="button" id="joinBtn" class="form-button">회원가입</button>
+            
+            <div class="form-footer">
+                이미 계정이 있으신가요? <a href="/member/login">로그인</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<th:block layout:fragment="script">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script th:src="@{/assets/js/member/join.js}"></script>
+</th:block>
+
+<style>
+.profile-upload-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.profile-preview {
+    object-fit: cover;
+    border: 2px solid #ddd;
+}
+
+.selected-file-name {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.btn-outline-primary {
+    color: #007bff;
+    border-color: #007bff;
+    background-color: transparent;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-outline-primary:hover {
+    color: white;
+    background-color: #007bff;
+}
+
+.email-input-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+    max-width: 100%;
+    flex-wrap: nowrap;
+}
+
+.email-part {
+    width: 45%;
+    min-width: 120px;
+    flex-shrink: 1;
+}
+
+.email-separator {
+    font-weight: bold;
+    color: #666;
+    padding: 0 5px;
+    flex-shrink: 0;
+}
+
+.domain-toggle-btn {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s;
+}
+
+.domain-toggle-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.domain-select-container {
+    position: relative;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    z-index: 10;
+}
+
+.domain-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+.domain-option {
+    display: inline-block;
+    padding: 5px 10px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9em;
+}
+
+.domain-option:hover {
+    background-color: #e0e0e0;
+}
+
+@media (max-width: 768px) {
+    .email-part {
+        width: 43%;
+    }
+}
+
+@media (max-width: 480px) {
+    .email-input-container {
+        flex-direction: row; 
+    }
+    
+    .email-part {
+        width: 42%;
+        min-width: 80px;
+    }
+}
+</style>
+</html>

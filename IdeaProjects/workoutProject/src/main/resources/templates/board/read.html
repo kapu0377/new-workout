@@ -1,0 +1,239 @@
+<!DOCTYPE HTML>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/basic.html}">
+<head>
+    <title>게시글 상세</title>
+    <th:block layout:fragment="link">
+        <link rel="stylesheet" th:href="@{/assets/css/board-read.css}" />
+    </th:block>
+</head>
+
+<div layout:fragment="content" id="main-wrapper">
+    <div class="wrapper style2">
+        <div class="inner">
+            <div class="container">
+                <div class="post-container">
+                    <div class="post-header">
+                        <h2 class="post-title" th:text="${board.title}">제목</h2>
+                        <div class="post-info">
+                            <span>작성자: <strong th:text="${board.writer}">작성자명</strong></span>
+                            <span>작성일: <strong
+                                    th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd HH:mm')}">날짜</strong></span>
+                            <span>조회수: <strong th:text="${board.view}">조회수</strong></span>
+                        </div>
+                    </div>
+
+                    <div th:each="fileName: ${board.fileNames}" class="image-container">
+                        <img th:src="|/view/${fileName}|"
+                             alt="게시글 이미지"
+                             class="post-image">
+                    </div>
+                    <div class="post-content" th:utext="${board.content}">
+                    </div>
+
+                    <div class="button-area">
+                        <button class="button modify-button"
+                                th:if="${#authorization.expression('isAuthenticated()') and (#authentication.principal.username == board.writer || #authorization.expression('hasRole(''ROLE_ADMIN'')') )}">수정
+                        </button>
+                        <button class="button list-button">목록</button>
+                    </div>
+
+                    <div class="comment-section" th:if="${#authorization.expression('isAuthenticated()')}">
+                        <h3>댓글 작성</h3>
+                        <textarea class="comment-input" placeholder="댓글을 작성하세요"></textarea>
+                        <button class="button comment-button">등록</button>
+                    </div>
+                    <div th:unless="${#authorization.expression('isAuthenticated()')}">
+                        <p>댓글을 작성하려면 <a href="/member/login">로그인</a>이 필요합니다.</p>
+                    </div>
+                </div>
+
+                <div class="reply-section">
+                    <h3>댓글 목록</h3>
+                    <div class="replyList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="script">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script type="module" th:inline="javascript">
+        import { getList, addReply, modifyReply, removeReply } from '/assets/js/board/reply.js';
+        
+        document.addEventListener('DOMContentLoaded', function () {
+            const bno = /*[[${board.bno}]]*/ 0;
+            const currentUser = /*[[${#authorization.expression('isAuthenticated()') ? #authentication.principal?.username : ''}]]*/ '';
+            const isAdmin = /*[[${#authorization.expression('hasRole("ROLE_ADMIN")')}]]*/ false;
+            console.log(isAdmin);
+            const replyList = document.querySelector('.replyList');
+            const registerBtn = document.querySelector(".comment-button");
+            const replyText = document.querySelector(".comment-input");
+            function printList(dtoList) {
+                let str = '';
+                if (dtoList && dtoList.length > 0) {
+                    for (const dto of dtoList) {
+                        const date = new Date(dto.regDate);
+
+                        const formattedDate = `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 ${date.getHours() > 12 ? '오후' : '오전'} ${String(date.getHours() % 12 || 12).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+
+                        str += `
+<div class="reply-item" data-rno="${dto.rno}">
+    <div class="reply-header">
+        <div class="reply-info">
+            <span class="reply-writer">${dto.replyer}</span>
+            ${dto.flag ? `<span class="admin-tag">관리자</span>` : ''}
+            <span class="reply-date">${formattedDate}</span>
+        </div>
+        <div class="button-area">
+            ${(currentUser === dto.replyer  || isAdmin) ?
+                            `<button class="button modify-button modifyBtn">수정</button>` : ''}
+            ${(currentUser === dto.replyer || isAdmin) ?
+                            `<button class="button remove-button removeBtn">삭제</button>` : ''}
+        </div>
+    </div>
+    <div class="reply-content">
+        <div class="reply-text">${dto.replyText}</div>
+        <div class="edit-area" style="display: none;">
+            <textarea class="reply-textarea">${dto.replyText}</textarea>
+            <div class="button-area">
+                <button class="button modify-button saveBtn">저장</button>
+                <button class="button list-button cancelBtn">취소</button>
+            </div>
+        </div>
+    </div>
+</div>`;
+                    }
+                } else {
+                    str = '<div class="no-replies">등록된 댓글이 없습니다.</div>';
+                }
+                replyList.innerHTML = str;
+            }
+
+            // 버튼 이벤트 리스너 추가
+            const modifyButton = document.querySelector('.modify-button');
+            if (modifyButton) {
+                modifyButton.addEventListener('click', function () {
+                    window.location.href = `/board/modify?bno=${bno}`;
+                });
+            }
+
+            const listButton = document.querySelector('.list-button');
+            if (listButton) {
+                listButton.addEventListener('click', function () {
+                    window.location.href = '/board/list';
+                });
+            }
+
+            function printReplies(page, size, goLast) {
+                getList({bno, page, size, goLast}).then(
+                    data => {
+                        console.log('Replies data:', data);
+                        printList(data.dtoList);
+                    }
+                ).catch(e => {
+                    console.error('Error fetching replies:', e);
+                });
+            }
+
+            console.log('Reply elements:', {replyList, registerBtn, replyText});
+
+            // 댓글 등록 이벤트
+            registerBtn.addEventListener("click", function (e) {
+                if (replyText.value.trim() === '') {
+                    alert("댓글 내용을 입력해주세요");
+                    return;
+                }
+
+                const replyObj = {
+                    bno: bno,
+                    replyText: replyText.value,
+                    replyer: currentUser,
+                    flag: isAdmin
+                }
+                console.log(replyObj)
+
+                addReply(replyObj).then(result => {
+                    replyText.value = '';
+                    printReplies(1, 10, true);
+                }).catch(e => {
+                    alert("댓글 등록에 실패했습니다");
+                    console.error(e);
+                });
+            });
+
+            // 댓글 수정/삭제 이벤트
+            replyList.addEventListener("click", async function (e) {
+                const replyItem = e.target.closest('.reply-item');
+                if (!replyItem) return;
+
+                // 수정 모드 전환
+                if (e.target.classList.contains('modifyBtn')) {
+                    const replyContent = replyItem.querySelector('.reply-content');
+                    const replyText = replyContent.querySelector('.reply-text');
+                    const editArea = replyContent.querySelector('.edit-area');
+                    const buttonArea = replyItem.querySelector('.button-area');
+
+                    const textarea = editArea.querySelector('textarea');
+                    textarea.value = replyText.textContent.trim();
+                    textarea.focus();
+
+                    replyText.style.display = 'none';
+                    editArea.style.display = 'block';
+                    buttonArea.style.display = 'none';
+                }
+
+                // 수정 저장
+                if (e.target.classList.contains('saveBtn')) {
+                    const textarea = replyItem.querySelector('.edit-area textarea');
+                    const newText = textarea.value.trim();
+                    if (!newText) return;
+
+                    try {
+                        await modifyReply({
+                            rno: replyItem.dataset.rno,
+                            replyText: newText
+                        });
+                        printReplies(1, 10, false);
+                    } catch (error) {
+                        console.error('댓글 수정 실패:', error);
+                        alert('댓글 수정에 실패했습니다.');
+                    }
+                }
+
+                // 수정 취소
+                if (e.target.classList.contains('cancelBtn')) {
+                    const replyContent = replyItem.querySelector('.reply-content');
+                    const replyText = replyContent.querySelector('.reply-text');
+                    const editArea = replyContent.querySelector('.edit-area');
+                    const buttonArea = replyItem.querySelector('.button-area');
+
+                    replyText.style.display = 'block';
+                    editArea.style.display = 'none';
+                    buttonArea.style.display = 'flex';
+                }
+
+                // 삭제
+                if (e.target.classList.contains('removeBtn')) {
+                    if (!confirm('댓글을 삭제하시겠습니까?')) return;
+
+                    try {
+                        await removeReply(replyItem.dataset.rno);
+                        alert('댓글이 삭제되었습니다.');
+                        printReplies(1, 10, false);
+                    } catch (error) {
+                        console.error('댓글 삭제 실패:', error);
+                        alert('댓글 삭제에 실패했습니다.');
+                    }
+                }
+            });
+
+            // 초기 댓글 목록 로드
+            printReplies(1, 10, true);
+        });
+    </script>
+</th:block>
+</html>

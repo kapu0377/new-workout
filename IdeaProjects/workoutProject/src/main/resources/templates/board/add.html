@@ -1,0 +1,292 @@
+<!DOCTYPE HTML>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/basic.html}">
+<head th:fragment="head">
+    <th:block layout:fragment="link">
+        <link rel="stylesheet" th:href="@{/assets/css/base.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/layout.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/components.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/utilities.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/variables.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/boardList.css}"/>
+        <link rel="stylesheet" th:href="@{/assets/css/add-board.css}"/>
+    </th:block>
+</head>
+
+<div layout:fragment="content" id="main-wrapper">
+    <div class="wrapper style2">
+        <div class="inner">
+            <div class="container">
+                <div id="content">
+                    <header>
+                        <h3>새 글 등록</h3>
+                    </header>
+                    <div th:if="${errors}" class="error-message" style="color: #dc2626; margin-bottom: 1rem;">
+                        <ul>
+                            <li th:each="err : ${errors}" th:text="${err.defaultMessage}"></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <form id="addForm" action="/board/add" method="POST" enctype="multipart/form-data">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <ul class="bbsview_list">
+                                <li class="bbs_writer">
+                                    <div class="form-group">
+                                        <label><h5>작성자</h5></label>
+                                        <input type="text" name="writer" class="form-control"
+                                               th:value="${#authentication.principal.username}" readonly>
+                                    </div>
+                                </li>
+                                <li class="bbs_title">
+                                    <div class="form-group">
+                                        <label><h5>제목</h5></label>
+                                        <input type="text" name="title" placeholder="제목을 입력해주세요.">
+                                    </div>
+                                </li>
+                                <li class="bbs_content">
+                                    <div class="form-group">
+                                        <label><h5>내용</h5></label>
+                                        <textarea name="content" cols="110" rows="20"
+                                                  placeholder="내용을 입력해주세요."></textarea>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="form-group">
+                                        <label>이미지</label>
+                                        <div class="uploadHidden" style="display: none;">
+                                            <input type="file" name="files" accept="image/*" multiple id="file-upload">
+                                        </div>
+                                        <div id="drop-zone" class="board-dropzone" onclick="document.getElementById('file-upload').click()">
+                                            <p class="text-gray-500 text-sm">이미지를 드래그하여 놓거나 클릭하여 선택하세요</p>
+                                        </div>
+                                        <div class="mt-4">
+                                            <div class="uploadResult flex flex-row flex-wrap gap-4"></div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="form-actions">
+                                        <button type="submit" class="register-button submitBtn">
+                                            등록
+                                        </button>
+                                        <button type="button" class="return-button">
+                                            <a th:href="|@{/board/list}?${list}|">목록</a></button>
+                                    </div>
+                                </li>
+                            </ul>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script th:src="@{/assets/js/upload/upload.js}"></script>
+</div>
+
+<script layout:fragment="script" th:inline="javascript">
+    function showUploadFile(data) {
+        const uuid = data.uuid;
+        const fileName = data.fileName;
+        const link = data.link;
+        
+        const str = '<div class="uploaded-image">' +
+            '<div class="image-wrapper">' +
+            '<img src="/view/' + link + '" data-src="' + uuid + '_' + fileName + '" class="preview-image">' +
+            '<button type="button" onclick="javascript:removeFile(\'' + uuid + '\', \'' + fileName + '\', this)" class="remove-image-btn">×</button>' +
+            '</div>' +
+            '<p class="file-name">' + fileName + '</p>' +
+            '</div>';
+
+        document.querySelector(".uploadResult").insertAdjacentHTML('beforeend', str);
+    }
+
+    // 파일 삭제 함수
+    function removeFile(uuid, fileName, obj) {
+        // 이벤트의 기본 동작과 전파를 막습니다
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (confirm('이미지를 삭제하시겠습니까?')) {
+            removeFileToServer(uuid, fileName).then(result => {
+                obj.closest('.uploaded-image').remove();
+            }).catch(error => {
+                console.error('파일 삭제 중 오류가 발생했습니다:', error);
+                alert('파일 삭제에 실패했습니다.');
+            });
+        }
+    }
+
+    // 파일 처리 함수
+    function handleFiles(files) {
+        const formData = new FormData();
+        Array.from(files).forEach(file => {
+            if (file.type.startsWith('image/')) {
+                formData.append('files', file);
+            }
+        });
+
+        if (formData.has('files')) {
+            // 이제 showUploadFile 함수가 정의된 후에 사용됩니다
+            uploadToServer(formData).then(results => {
+                results.forEach(result => showUploadFile(result));
+            }).catch(error => {
+                console.error('업로드 중 오류가 발생했습니다:', error);
+            });
+        }
+    }
+
+    // DOM 요소 참조
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-upload');
+
+    // 이벤트 리스너 설정
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, function () {
+            dropZone.style.borderColor = '#4a90e2';
+            dropZone.style.backgroundColor = '#f8fafc';
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, function () {
+            dropZone.style.borderColor = '#e5e7eb';
+            dropZone.style.backgroundColor = 'transparent';
+        });
+    });
+
+    // 드롭 이벤트 처리
+    dropZone.addEventListener('drop', function (e) {
+        const files = e.dataTransfer.files;
+        handleFiles(files);
+    });
+
+    // 파일 입력 변경 이벤트 처리
+    fileInput.addEventListener('change', function (e) {
+        handleFiles(e.target.files);
+    });
+
+    // 에러 처리
+    const errors = /*[[${errors}]]*/ null;
+    console.log(errors);
+    let errorMsg = '';
+    if (errors) {
+        for (let i = 0; i < errors.length; i++) {
+            const field = errors[i].field ? errors[i].field : '알 수 없는 필드';
+            const code = errors[i].code ? errors[i].code : '알 수 없는 오류';
+            errorMsg += `${field}은(는) ${code} \\n`;
+        }
+        alert(errorMsg);
+    }
+
+    const auth = /*[[${#authentication.principal}]]*/ null;
+    const errors2 = /*[[${error}]]*/ null;
+    console.log(auth);
+    console.log(errors2);
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const submitBtn = document.querySelector('.submitBtn');
+        const form = document.getElementById('addForm');
+
+        if (submitBtn && form) {
+            submitBtn.addEventListener("click", function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // 폼 필드 참조
+                const titleInput = document.querySelector('input[name="title"]');
+                const contentInput = document.querySelector('textarea[name="content"]');
+                const writerInput = document.querySelector('input[name="writer"]');
+                
+                console.log('폼 필드 확인:', {
+                    titleInput: titleInput ? true : false,
+                    contentInput: contentInput ? true : false,
+                    writerInput: writerInput ? true : false
+                });
+                
+                // 각 필드에 대한 null 체크 및 안전한 값 추출
+                if (!titleInput || !contentInput || !writerInput) {
+                    console.error('필수 입력 필드를 찾을 수 없습니다.');
+                    alert('페이지 로딩에 문제가 있습니다. 페이지를 새로고침해 주세요.');
+                    return;
+                }
+                
+                const title = titleInput.value ? titleInput.value.trim() : '';
+                const content = contentInput.value ? contentInput.value.trim() : '';
+                const writer = writerInput.value ? writerInput.value.trim() : '';
+                
+                console.log('입력값 확인:', {
+                    title: title,
+                    contentLength: content.length,
+                    writer: writer
+                });
+
+                // 필수 입력 검증
+                if (!title) {
+                    console.error('제목이 비어 있습니다');
+                    alert('제목을 입력해주세요.');
+                    titleInput.focus();
+                    return;
+                }
+
+                if (!content) {
+                    console.error('내용이 비어 있습니다');
+                    alert('내용을 입력해주세요.');
+                    contentInput.focus();
+                    return;
+                }
+                
+                if (!writer) {
+                    console.error('작성자 정보가 없습니다');
+                    alert('로그인 후 이용해주세요.');
+                    return;
+                }
+
+                // 이미지 처리
+                const target = document.querySelector(".uploadHidden");
+                if (target) {
+                    const uploadFiles = document.querySelectorAll(".uploadResult img");
+                    let str = '';
+
+                    uploadFiles.forEach(uploadFile => {
+                        const imgLink = uploadFile.getAttribute("data-src");
+                        if (imgLink) {
+                            str += `<input type='hidden' name='fileNames' value="${imgLink}">`;
+                        }
+                    });
+
+                    target.innerHTML = str;
+                }
+                
+                // 폼 제출 전 로그 출력
+                console.log('폼 제출 준비 완료, 데이터:', {
+                    title: title,
+                    contentLength: content.length,
+                    writer: writer,
+                    images: document.querySelectorAll('.uploadHidden input').length
+                });
+                
+                try {
+                    // 폼 제출
+                    form.submit();
+                } catch (error) {
+                    console.error('폼 제출 중 오류 발생:', error);
+                    alert('폼 제출 중 오류가 발생했습니다. 다시 시도해주세요.');
+                }
+            });
+        } else {
+            console.error("submitBtn 또는 form 요소를 찾을 수 없습니다.");
+        }
+    });
+</script>
+</html>

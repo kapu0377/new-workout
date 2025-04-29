@@ -1,0 +1,187 @@
+@import url('base.css');
+@import url('variables.css');
+@import url('utilities.css');
+@import url('components.css');
+
+/* 글쓰기 폼 스타일 */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    color: var(--text-dark);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    outline: none;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.image-upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 25px;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: all 0.3s;
+    background-color: #fafbfc;
+}
+
+.image-upload-area:hover {
+    border-color: #4CAF50;
+    background-color: #f8fafc;
+}
+
+.image-upload-container {
+    margin-bottom: 1.5rem;
+}
+
+.image-preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.uploadResult {
+    margin-top: 10px;
+}
+
+.flex {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* 게시판 글쓰기 스타일 */
+.bbsview_list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.bbsview_list li {
+    margin-bottom: 1.5rem;
+}
+
+.board-dropzone {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.board-dropzone:hover {
+    border-color: var(--primary);
+    background-color: #f8fafc;
+}
+
+.uploaded-image {
+    display: inline-block;
+    position: relative;
+    margin: 5px;
+}
+
+.register-button, 
+.return-button {
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.register-button {
+    background-color: var(--primary);
+    color: white;
+}
+
+.register-button:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.return-button {
+    background-color: #f3f4f6;
+    color: var(--text-dark);
+}
+
+.return-button:hover {
+    background-color: #e5e7eb;
+    transform: translateY(-2px);
+}
+
+.return-button a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* 이미지 업로드 관련 스타일 */
+.image-wrapper {
+    position: relative;
+    width: 150px;
+    height: 150px;
+}
+
+.preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.remove-image-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.file-name {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #666;
+    word-break: break-all;
+    max-width: 150px;
+}
+
+/* 기타 유틸리티 클래스 */
+.mt-4 {
+    margin-top: 1rem;
+} 

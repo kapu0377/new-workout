@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html lang="ko"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/basic.html}">
+
+<th:block layout:fragment="link">
+	<!-- <link rel="stylesheet" th:href="@{/assets/css/ex.css}"> -->
+</th:block>
+
+<div layout:fragment="content" id="main-wrapper">
+	<div class="wrapper style2">
+		<div class="inner">
+			<div class="container">
+				<!-- 게시글 컨테이너 -->
+				<div class="board-container">
+					<div class="board-header">
+						<h2 class="board-title">글 작성</h2>
+					</div>
+
+					<form action="/exercise/add" method="POST" class="board-form">
+						<div class="form-group">
+							<label>제목</label>
+							<input type="text" name="title" class="form-input" placeholder="제목을 입력해주세요">
+						</div>
+
+						<div class="form-group">
+							<label>URL</label>
+							<input type="text" name="url" class="form-input" placeholder="YouTube URL을 입력해주세요">
+						</div>
+
+						<div class="form-group">
+							<label>내용</label>
+							<textarea name="content" class="form-textarea" placeholder="내용을 입력해주세요"></textarea>
+						</div>
+
+						<div class="button-area">
+							<button type="button" class="button list-button" onclick="location.href='/exercise/notice'">목록</button>
+							<button type="submit" class="button modify-button">등록</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

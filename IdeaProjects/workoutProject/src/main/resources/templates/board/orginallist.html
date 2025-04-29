@@ -1,0 +1,112 @@
+<!DOCTYPE HTML>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/basic.html}">
+
+<div layout:fragment="content" id="main-wrapper">
+    <div class="wrapper style2">
+        <div class="inner">
+            <div class="container">
+                <!-- 게시판 본문 영역 -->
+                <div class="board-container">
+                    <div class="board-header">
+                        <h3>자유게시판</h3>
+                    </div>
+
+                    <!-- 검색 및 글쓰기 버튼 영역 -->
+                    <div class="search-write-container">
+                        <form action="/board/list" class="search-form">
+                            <input type="search"
+                                   name="keyword"
+                                   th:value="${pageRequestDTO.keyword}"
+                                   placeholder="검색어를 입력하세요"
+                                   class="search-input"/>
+                            <button type="submit" class="button secondary-button">검색</button>
+                        </form>
+                        <a href="/board/add" class="button primary-button">글쓰기</a>
+                    </div>
+
+                    <!-- 게시글 목록 -->
+                    <div class="table-wrapper">
+                        <table class="board-table">
+                            <thead>
+                            <tr>
+                                <th class="w-10">번호</th>
+                                <th class="w-50">제목</th>
+                                <th class="w-15">작성자</th>
+                                <th class="w-15">작성일</th>
+                                <th class="w-10">조회수</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="board:${responseDTO.dtoList}">
+                                <td>[[${board.bno}]]</td>
+                                <td>
+                                    <a th:href="@{/board/read(bno=${board.bno})}" class="title-link">
+                                        [[${board.title}]]
+                                        <th:block th:if="${board.replyCount > 0}">
+                                            <span class="reply-badge">[[${board.replyCount}]]</span>
+                                        </th:block>
+                                    </a>
+                                </td>
+                                <td class="text-center">[[${board.writer}]]</td>
+                                <td class="text-center" th:text="${#temporals.format(board.regDate, 'yyyy-MM-dd')}"></td>
+                                <td class="text-center" th:id="'view-count-' + ${board.bno}">[[${board.view}]]</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 페이지네이션 -->
+                    <div class="pagination" id="pagination">
+                        <a class="pagenum firstpage" th:href="@{/board/list(page=1)}">
+                            <img th:src="@{/images/btn_firstpage.png}" alt="첫 페이지">
+                        </a>
+                        <a th:if="${responseDTO.prev}" class="pagenum prevpage"
+                           th:href="@{/board/list(page=${responseDTO.start - 1})}">
+                            <img th:src="@{/images/btn_prevpage.png}" alt="이전">
+                        </a>
+                        <th:block th:each="num: ${#numbers.sequence(responseDTO.start, responseDTO.end)}">
+                            <a th:href="@{/board/list(page=${num})}"
+                               th:class="${responseDTO.page == num} ? 'pagenum currentpage' : 'pagenum'">
+                                [[${num}]]
+                            </a>
+                        </th:block>
+                        <a th:if="${responseDTO.next}" class="pagenum nextpage"
+                           th:href="@{/board/list(page=${responseDTO.end + 1})}">
+                            <img th:src="@{/images/btn_nextpage.png}" alt="다음">
+                        </a>
+                        <a class="pagenum lastpage" th:href="@{/board/list(page=${responseDTO.last})}">
+                            <img th:src="@{/images/btn_lastpage.png}" alt="마지막 페이지">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="link">
+    <link rel="stylesheet" th:href="@{/assets/css/boardList.css}"/>
+</th:block>
+
+<script layout:fragment="script" th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        // 조회수 자동 업데이트
+        setInterval(updateViewCounts, 5000);
+    });
+
+    function updateViewCounts() {
+        fetch('/board/view-counts')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(item => {
+                    const element = document.getElementById('view-count-' + item.bno);
+                    if (element) element.textContent = item.view;
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+</html>

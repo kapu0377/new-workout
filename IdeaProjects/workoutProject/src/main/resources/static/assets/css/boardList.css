@@ -1,0 +1,224 @@
+@import url('base.css');
+@import url('variables.css');
+@import url('utilities.css');
+@import url('components.css');
+
+.board-container {
+    background: #fff;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: 38px 32px 32px 32px;
+    margin-top: 32px;
+    min-height: 650px; /* 최소 높이 유지 */
+    position: relative; /* 자식 요소 배치 기준 */
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease; /* 부드러운 전환 효과 */
+}
+
+/* 테이블 래퍼에 고정 높이 지정 */
+.table-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 450px; /* 테이블 영역 최소 높이 */
+    transition: all 0.3s ease; /* 부드러운 전환 효과 */
+}
+
+/* 로딩 상태 표시를 위한 스타일 */
+.board-container .loading-row {
+    display: table-row;
+    height: 350px;
+}
+
+.board-container .loading-cell {
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    color: var(--text-light);
+    font-size: 16px;
+    padding: 40px 0;
+}
+
+/* 빈 테이블 높이 유지 */
+.board-table tr.empty-row td {
+    height: 350px;
+    padding: 40px 0; /* 추가 패딩으로 높이 확보 */
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* 페이드인 효과 */
+.fade-in {
+    animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.board-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.board-controls input.search-input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 300px;
+}
+
+.board-controls .btn-write {
+    margin-top: 10px;
+    background-color: #2C3E50;
+    color: white;
+    padding: 12px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.board-controls .btn-default:hover {
+    background-color: #34495E;
+}
+
+.board-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 20px 0;
+    font-size: 14px;
+    transition: opacity 0.3s ease, transform 0.2s ease; 
+}
+
+.board-table td,
+.board-table th {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.board-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+/* 게시판 테이블 td 스타일 */
+.board-table td {
+    color: #333;
+}
+
+/* 게시판 테이블 tr 스타일 */
+.board-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.board-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* 구분선 없는 열 */
+.board-table th.no-border,
+.board-table td.no-border {
+    border-right: none;
+}
+
+/* 페이지네이션 */
+.pagination-container {
+    margin-top: auto; /* 테이블 영역을 최대한 확보 */
+    height: 60px; /* 페이지네이션 영역 고정 높이 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* 버튼 사이 간격 */
+    transition: opacity 0.3s ease; /* 부드러운 전환 효과 */
+}
+
+.pagination-container .pagination-btn {
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+    font-size: 14px;
+    color: var(--text-medium);
+    cursor: pointer;
+    transition: var(--transition-normal);
+}
+
+.pagination-container .pagination-btn:hover {
+    background-color: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.pagination-container .pagination-btn.active {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: var(--text-white);
+    font-weight: bold;
+    cursor: default;
+}
+
+.pagination-container .pagination-btn:disabled {
+    background-color: #f9f9f9;
+    border-color: #ddd;
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+/* 최신 글 및 인기 게시물 섹션 */
+.row {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* 최신 글과 인기 게시물 스타일 */
+.recent-posts {
+    flex: 3; /* 자유게시판과 동일한 넓이를 유지 */
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.popular-posts {
+    flex: 1; /* 최신 글 섹션 옆에서 적절한 비율 유지 */
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.recent-posts h2,
+.popular-posts h2 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+@media (max-width: 768px) {
+    .row {
+        flex-direction: column;
+    }
+
+    .recent-posts,
+    .popular-posts {
+        flex: 1; 
+        margin-bottom: 20px;
+    }
+}
+
+.board-table td a {
+    transition: color 0.2s ease; 
+}
+
+.board-table tr {
+    transition: background-color 0.2s ease; 
+}
